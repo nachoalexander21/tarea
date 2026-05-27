@@ -1,30 +1,24 @@
 FROM php:8.3-cli
 
-# Instalar dependencias
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libzip-dev \
-    zip
+    git unzip curl libpq-dev zip
 
-# Instalar extensiones PHP
-RUN docker-php-ext-install pdo pdo_mysql zip
+RUN docker-php-ext-install pdo pdo_pgsql
 
-# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Carpeta del proyecto
 WORKDIR /app
 
-# Copiar archivos
 COPY . .
 
-# Instalar Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Puerto Render
+RUN cp .env.example .env
+
+RUN php artisan key:generate
+
+RUN touch database/database.sqlite
+
 EXPOSE 10000
 
-# Iniciar Laravel
-CMD php artisan serve --host=0.0.0.0 --port=10000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=10000
