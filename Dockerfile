@@ -1,7 +1,11 @@
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
-    git unzip curl libpq-dev zip
+    git \
+    unzip \
+    curl \
+    libpq-dev \
+    zip
 
 RUN docker-php-ext-install pdo pdo_pgsql
 
@@ -13,9 +17,13 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+RUN cp .env.example .env || true
+
 EXPOSE 10000
 
 CMD php artisan config:clear && \
     php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
     php artisan migrate --force && \
     php artisan serve --host=0.0.0.0 --port=10000
