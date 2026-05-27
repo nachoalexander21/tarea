@@ -17,8 +17,6 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-RUN cp .env.example .env || true
-
 EXPOSE 10000
 
 CMD php artisan config:clear && \
